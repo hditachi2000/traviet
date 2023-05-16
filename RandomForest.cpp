@@ -437,7 +437,7 @@ void deleteFeature(Data& a, int featureID) {
 }
 
 
- // Nhân bản Data (tương tự boostrap)
+ // Nhân bản Data (~ boostrap)
 //CẬP NHẬT :  Các sub-Data hạn chế việc giao thoa feature và sample / Đảm bảo tính ngẫu nhiên 
 /* Solve : 2 unordered_map "Selected" sẽ lưu lại các sample / feature đã được chọn . Quá trình chọn ngẫu nhiên sample/feature cho sub_Data 
   sẽ bỏ qua những sample/feature đã được chọn . Nếu tổng số sample/feature trong tất cả subdata bằng "n" lần số sample/feature tại Data gốc
