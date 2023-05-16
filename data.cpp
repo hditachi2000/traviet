@@ -437,7 +437,12 @@ void deleteFeature(Data& a, int featureID) {
 }
 
 
- // Nhân bản Data 
+ // Nhân bản Data (tương tự boostrap)
+//CẬP NHẬT :  Các sub-Data hạn chế việc giao thoa feature và sample / Đảm bảo tính ngẫu nhiên 
+/* Solve : 2 unordered_map "Selected" sẽ lưu lại các sample / feature đã được chọn . Quá trình chọn ngẫu nhiên sample/feature cho sub_Data 
+  sẽ bỏ qua những sample/feature đã được chọn . Nếu tổng số sample/feature trong tất cả subdata bằng "n" lần số sample/feature tại Data gốc
+  mỗi lần Selected đầy , tập này sẽ được clear lại. 
+*/
 vector<Data> ClonesData(Data a, int numSubData){
     vector<Data> subDataList;
     int numSample = a.AllSample.size();
@@ -625,17 +630,28 @@ struct RandomForest{
     }
 
     // Hàm huấn luyện, trả về tập node tối ưu nhất || Mỗi lần huấn luyện sẽ tạo 1 rừng cây mới 
+    // các hàm con đã được test và cài đặt tham số phục vụ cho quá trình huấn luyện 
+    // C1 : Training theo lưới/grid search 
+    /*C2 : Cập nhật lưới nâng cấp : Theo Accuracy / overfiting :
+    - Accuracy giảm : tăng numTree, tăng featureGroup 
+    - Overfitting = Accuracy(training) - Accuracy(validation)
+        Overfitting tăng : giảm minSplit, giảm maxDepth /  ngược lại
+    - Đối với riêng featureWeight : thăm dò : ban đầu, tăng/giảm trọng số tại từng feature, để phỏng đoán feature nào ảnh hưởng như thế nào tới Accuracy và
+                                              overfitting . Sau đó mỗi phần tử trong featureWeight sẽ được coi như 1 hyperparameter trong quá trình traning 
+     Một unprdered_map ứng với các hyperparameter và xu hướng ảnh hưởng của chúng lên accuracy và overfitting . Quá trình tranning sẽ dựa vào xu hướng thay đổi
+     của accuray và overfitting để điều chỉnh các hyperparameter cho phù hợp . 
+    */
     unordered_map<int,Node*>  Trainning(int epochs){
         float bestAcc = Solution(validation);        // Tạo lời giải và kết quả ban đầu 
         unordered_map<int,Node*> bestRoot = this->root;
         float PreAcc;
         for(int i = 0; i<epochs; i++){
-            // số lượng sample và feature để tạo 1 sub-data không thể thay đổi
+            // số lượng sample và feature để tạo 1 sub-data tạm không thể thay đổi / chưa được cài đặt làm tham số 
 
             // cập nhật minSplit
             // cập nhật maxDepth
             // cập nhật featureWeight : a.features.second 
-            // cập nhật featureGroup/số nhóm trong 1 feature : hạn chế . CHỉ tăng khi độ chính xác kém / bế tắc 
+            // cập nhật featureGroup/số nhóm trong 1 feature : hạn chế . CHỉ tăng khi độ chính xác kém / bế tắc (2^n)
             // cập nhật numTree / số cây con :: càng tăng càng tốt, nhưng gây nặng và chậm 
 
             float acc = Solution(validation);
@@ -667,7 +683,7 @@ struct RandomForest{
             }
         }
 
-        // C2:  
+        // C2:  Các cây với các nhánh có accuracy = 1/numClass , sẽ được thử thay đổi nhãn thành class khác 
     }
 
 };
